@@ -214,7 +214,6 @@ Psychological Modifiers: ${psych.length ? psych.join(", ") : "None"}
     $("outputSection").classList.remove("hidden");
 };
 
-// Run Simulation → Build Final Prompt → Copy → Auto-open → Auto-paste
 document.getElementById("simulateBtn").onclick = async () => {
     const structured = $("promptBox").textContent;
 
@@ -241,17 +240,21 @@ Include:
 If anything is unclear, request clarification in-character as Janet.
 `;
 
+    // Copy to clipboard
     await navigator.clipboard.writeText(finalPrompt);
 
-    let win = window.open("https://chat.openai.com", "_blank");
+    // Encode for URL
+    const encoded = encodeURIComponent(finalPrompt);
+
+    // Try chat.openai.com first
+    window.open(`https://chat.openai.com/?q=${encoded}`, "_blank");
+
+    // Optional fallback: open chatgpt.com after small delay
     setTimeout(() => {
-        try {
-            win.document.querySelector("textarea").value = finalPrompt;
-        } catch (e) {
-            window.open("https://chatgpt.com", "_blank");
-        }
+        window.open(`https://chatgpt.com/?q=${encoded}`, "_blank");
     }, 800);
 };
+
 </script>
 
 </body>
