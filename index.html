@@ -246,9 +246,15 @@ Instructions:
 }
 
 function sendToGPT() {
-  const prompt = encodeURIComponent(document.getElementById("prompt").innerText);
-  window.open(`https://chat.openai.com/?prompt=${prompt}`, "_blank");
+  const prompt = document.getElementById("prompt").innerText;
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert("Prompt copied! Opening ChatGPT...");
+    window.open("https://chat.openai.com", "_blank");
+  });
 }
+
 </script>
 
 </body>
