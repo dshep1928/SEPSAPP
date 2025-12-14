@@ -69,7 +69,9 @@
     cursor: pointer;
     width: 100%;
     font-size: 1rem;
+    transition: 0.2s;
   }
+  button:hover { opacity: 0.9; }
 
   .theme-toggle {
     position: fixed;
@@ -87,6 +89,14 @@
     white-space: pre-wrap;
     font-family: monospace;
   }
+
+  #loadingBox {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2rem;
+    opacity: 0.8;
+  }
 </style>
 </head>
 
@@ -101,8 +111,8 @@
   <div class="card" style="text-align:center;">
     <h2>Select System Target</h2>
     <p>Choose which system SEPS should simulate.</p>
-    <button onclick="selectMode('Janet')">Janet (AI System)</button>
-    <button onclick="selectMode('Neighborhood')" style="margin-top:12px; background:#7b5bfa;">Neighborhood (Psych System)</button>
+    <button onclick="selectMode('Janet')">Janet (AI Execution System)</button>
+    <button onclick="selectMode('Neighborhood')" style="margin-top:12px; background:#7b5bfa;">Neighborhood (Human Psych System)</button>
   </div>
 </div>
 
@@ -114,7 +124,7 @@
 
   <div class="card">
     <label>Your Goal</label>
-    <textarea id="goal"></textarea>
+    <textarea id="goal" placeholder="Describe your goal..."></textarea>
 
     <label>Goal Type</label>
     <select id="goalType">
@@ -128,13 +138,15 @@
     </select>
 
     <label>Ethical Boundaries</label>
-    <textarea id="boundaries"></textarea>
+    <textarea id="boundaries" placeholder="List constraints or boundaries..."></textarea>
 
     <label>Psychological Context</label>
-    <textarea id="context"></textarea>
+    <textarea id="context" placeholder="Who is involved? Emotional state? Risks?"></textarea>
 
-    <button onclick="generateSEPS()">Generate SEPS Output</button>
+    <button onclick="runSimulation()">Run Simulation</button>
   </div>
+
+  <div id="loadingBox">🔄 Simulating...</div>
 
   <div class="card">
     <h3>SEPS Analysis</h3>
@@ -151,7 +163,9 @@
     <pre id="warnings"></pre>
   </div>
 
-  <button onclick="openPromptInNewTab()" style="margin-top:20px;">Open Prompt in New Tab</button>
+  <button id="openGPT" onclick="sendToGPT()" style="display:none; margin-top:20px;">
+    Send to ChatGPT
+  </button>
 </div>
 
 <script>
@@ -170,7 +184,14 @@ function goBack(){
   document.getElementById("screen1").style.display = "block";
 }
 
+function runSimulation() {
+  document.getElementById("loadingBox").style.display = "block";
+  setTimeout(generateSEPS, 1000);
+}
+
 function generateSEPS() {
+  document.getElementById("loadingBox").style.display = "none";
+
   const goal = document.getElementById("goal").value.trim();
   const type = document.getElementById("goalType").value.trim();
   const boundaries = document.getElementById("boundaries").value.trim();
@@ -186,15 +207,14 @@ function generateSEPS() {
   if (!type) warnings.push("Goal type not selected.");
   else positives.push("Goal type adds structure.");
 
-  if (!boundaries) warnings.push("Ethical boundaries missing.");
-  else positives.push("Boundaries help constrain the task.");
+  if (!boundaries) warnings.push("No ethical boundaries provided.");
+  else positives.push("Boundaries provide necessary constraints.");
 
-  if (!context) warnings.push("Psychological context missing.");
-  else positives.push("Context improves clarity.");
+  if (!context) warnings.push("No psychological context provided.");
+  else positives.push("Context improves interpretability.");
 
   document.getElementById("analysis").innerText =
-    "SEPS Analysis:\n" +
-    positives.map(p => "✔ " + p).join("\n") + "\n";
+    positives.map(p => "✔ " + p).join("\n");
 
   let finalPrompt =
 `You are a SEPS-aligned AI.
@@ -212,21 +232,22 @@ Psychological Context:
 ${context}
 
 Instructions:
-- Maintain ethical boundaries.
+- Maintain all boundaries.
 - Interpret user intent clearly.
-- Ask clarifying questions if vague.
+- Ask clarifying questions if needed.
 `;
 
   document.getElementById("prompt").innerText = finalPrompt;
 
   document.getElementById("warnings").innerText =
     warnings.length ? warnings.map(w => "⚠ " + w).join("\n") : "No major issues detected.";
+
+  document.getElementById("openGPT").style.display = "block";
 }
 
-function openPromptInNewTab(){
-  const prompt = document.getElementById("prompt").innerText;
-  const w = window.open("", "_blank");
-  w.document.write("<pre>" + prompt.replace(/</g, "&lt;") + "</pre>");
+function sendToGPT() {
+  const prompt = encodeURIComponent(document.getElementById("prompt").innerText);
+  window.open(`https://chat.openai.com/?prompt=${prompt}`, "_blank");
 }
 </script>
 
