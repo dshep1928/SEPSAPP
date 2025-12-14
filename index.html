@@ -16,17 +16,29 @@
     --good: #7dfaa7;
     --line: rgba(255,255,255,0.1);
   }
+  body.light {
+    --bg: #f5f5f7;
+    --panel: #ffffff;
+    --text: #1a1a1a;
+    --muted: #555;
+    --accent: #365cff;
+    --warn: #c70000;
+    --good: #009944;
+    --line: rgba(0,0,0,0.12);
+  }
+
   body {
     margin: 0;
-    font-family: ui-sans-serif, system-ui, -apple-system;
-    background: radial-gradient(1200px 700px at 20% 0%, #1a2d68 0%, var(--bg) 60%);
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
     color: var(--text);
-    padding-bottom: 80px;
   }
-  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
 
-  h1 { text-align: center; margin-bottom: 0; }
-  .sub { text-align: center; color: var(--muted); margin-bottom: 32px; }
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
 
   .card {
     background: var(--panel);
@@ -36,62 +48,126 @@
     border: 1px solid var(--line);
   }
 
-  label { display: block; font-weight: 600; margin-bottom: 6px; }
-  textarea, select {
-    width: 100%; padding: 10px; border-radius: 8px;
-    background: #0f1424; border: 1px solid var(--line);
-    color: var(--text); margin-bottom: 16px;
+  h1, h2, h3 { margin-top: 0; }
+
+  textarea, select, input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    margin-bottom: 12px;
   }
 
   button {
-    width: 100%; padding: 14px; border-radius: 10px;
-    background: var(--accent); color: white; border: none;
-    cursor: pointer; margin-top: 6px; font-size: 1rem;
+    background: var(--accent);
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    font-size: 0.9rem;
+  }
+
+  pre {
+    white-space: pre-wrap;
+    font-family: monospace;
   }
 </style>
 </head>
 
-<body>
+<body class="dark">
+<div class="theme-toggle" onclick="toggleTheme()">Toggle Theme</div>
+
+<!-- SCREEN 1 -->
 <div class="wrap" id="screen1">
   <h1>SEPS</h1>
-  <div class="sub">Structured Ethical Prompting System</div>
+  <p class="sub">Structured Ethical Prompting System</p>
 
   <div class="card" style="text-align:center;">
     <h2>Select System Target</h2>
-    <p class="sub">Choose which system SEPS should simulate.</p>
-
-    <button onclick="selectMode('Janet')">Janet (AI Execution System)</button>
-    <button onclick="selectMode('Neighborhood')" style="margin-top:12px; background:#7b5bfa;">Neighborhood (Human Psychological System)</button>
+    <p>Choose which system SEPS should simulate.</p>
+    <button onclick="selectMode('Janet')">Janet (AI System)</button>
+    <button onclick="selectMode('Neighborhood')" style="margin-top:12px; background:#7b5bfa;">Neighborhood (Psych System)</button>
   </div>
 </div>
 
+<!-- SCREEN 2 -->
 <div class="wrap" id="screen2" style="display:none;">
-  <button onclick="goBack()" style="margin-bottom:20px; width:auto; padding:8px 16px; background:#444;">⬅ Back</button>
+  <button onclick="goBack()" style="width:auto; margin-bottom:16px;">⬅ Back</button>
+
   <h1 id="modeTitle"></h1>
-  <div class="sub">Mode Active</div>
-  <h1>SEPS</h1>
-  <div class="sub">Structured Ethical Prompting System</div>
+
+  <div class="card">
+    <label>Your Goal</label>
+    <textarea id="goal"></textarea>
+
+    <label>Goal Type</label>
+    <select id="goalType">
+      <option value="">Select...</option>
+      <option>Interpersonal</option>
+      <option>Academic</option>
+      <option>Work</option>
+      <option>Self-Improvement</option>
+      <option>Problem-Solving</option>
+      <option>Emotional</option>
+    </select>
+
+    <label>Ethical Boundaries</label>
+    <textarea id="boundaries"></textarea>
+
+    <label>Psychological Context</label>
+    <textarea id="context"></textarea>
+
+    <button onclick="generateSEPS()">Generate SEPS Output</button>
+  </div>
+
+  <div class="card">
+    <h3>SEPS Analysis</h3>
+    <pre id="analysis"></pre>
+  </div>
+
+  <div class="card">
+    <h3>SEPS-Approved Prompt</h3>
+    <pre id="prompt"></pre>
+  </div>
 
   <div class="card">
     <h3>Warnings & Recommendations</h3>
     <pre id="warnings"></pre>
   </div>
 
-  <button onclick="openPromptInNewTab()" style="margin-top:20px; background:#5b7cfa;">Open Prompt in New Tab</button>
-"></pre>
-  </div>
+  <button onclick="openPromptInNewTab()" style="margin-top:20px;">Open Prompt in New Tab</button>
 </div>
 
 <script>
+function toggleTheme() {
+  document.body.classList.toggle("light");
+}
+
 function selectMode(mode){
-  document.getElementById('screen1').style.display = 'none';
-  document.getElementById('screen2').style.display = 'block';
-  document.getElementById('modeTitle').innerText = mode + " Mode";
+  document.getElementById("screen1").style.display = "none";
+  document.getElementById("screen2").style.display = "block";
+  document.getElementById("modeTitle").innerText = mode + " Mode";
 }
 
 function goBack(){
-  document.getElementById('screen2').style.display = 'none';
-  document.getElementById('screen1').style.display = 'block';
+  document.getElementById("screen2").style.display = "none";
+  document.getElementById("screen1").style.display = "block";
 }
 
 function generateSEPS() {
@@ -103,62 +179,54 @@ function generateSEPS() {
   let warnings = [];
   let positives = [];
 
-  if (!goal) warnings.push("Goal is missing or unclear.");
-  else if (goal.length < 10) warnings.push("Goal is too short to interpret.");
-  else positives.push("Goal has adequate detail.");
+  if (!goal) warnings.push("Goal missing.");
+  else if (goal.length < 10) warnings.push("Goal too short.");
+  else positives.push("Goal has good detail.");
 
   if (!type) warnings.push("Goal type not selected.");
   else positives.push("Goal type adds structure.");
 
-  if (!boundaries) warnings.push("Ethical boundaries are missing.");
-  else positives.push("Ethical boundaries defined.");
+  if (!boundaries) warnings.push("Ethical boundaries missing.");
+  else positives.push("Boundaries help constrain the task.");
 
   if (!context) warnings.push("Psychological context missing.");
-  else positives.push("Psychological context improves interpretation.");
+  else positives.push("Context improves clarity.");
 
-  let analysis =
-`• Goal: ${goal ? "Provided" : "Missing"}
-• Type: ${type || "None"}
-• Boundaries: ${boundaries ? "Provided" : "Missing"}
-• Context: ${context ? "Provided" : "Missing"}
+  document.getElementById("analysis").innerText =
+    "SEPS Analysis:\n" +
+    positives.map(p => "✔ " + p).join("\n") + "\n";
 
-Positive Notes:
-${positives.map(p => "✔ " + p).join("\n")}
-`;
-
-  let prompt =
+  let finalPrompt =
 `You are a SEPS-aligned AI.
 
 Goal:
-${goal || "[Missing]"}
+${goal}
 
 Goal Type:
-${type || "[Missing]"}
+${type}
 
 Ethical Boundaries:
-${boundaries || "[Missing]"}
+${boundaries}
 
 Psychological Context:
-${context || "[Missing]"}
+${context}
 
 Instructions:
-- Interpret the user's goal with clarity and psychological grounding.
-- Maintain all ethical boundaries.
-- Ask clarifying questions if goal is incomplete.
+- Maintain ethical boundaries.
+- Interpret user intent clearly.
+- Ask clarifying questions if vague.
 `;
 
-  let warnOutput = warnings.length
-    ? warnings.map(w => "⚠ " + w).join("\n")
-    : "No major issues detected.";
+  document.getElementById("prompt").innerText = finalPrompt;
 
-  document.getElementById("analysis").innerText = analysis;
-  document.getElementById("prompt").innerText = prompt;
-  document.getElementById("warnings").innerText = warnOutput;
+  document.getElementById("warnings").innerText =
+    warnings.length ? warnings.map(w => "⚠ " + w).join("\n") : "No major issues detected.";
 }
+
 function openPromptInNewTab(){
-  const prompt = document.getElementById('prompt').innerText;
-  const newWin = window.open('', '_blank');
-  newWin.document.write('<pre>' + prompt.replace(/</g,'&lt;') + '</pre>');
+  const prompt = document.getElementById("prompt").innerText;
+  const w = window.open("", "_blank");
+  w.document.write("<pre>" + prompt.replace(/</g, "&lt;") + "</pre>");
 }
 </script>
 
