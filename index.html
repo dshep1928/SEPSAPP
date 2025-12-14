@@ -1,285 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEPS – Structured Execution Prompting System</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SEPS – Structured Ethical Prompting System</title>
 
 <style>
-    :root {
-        --bg: #0b1020;
-        --panel: #161b2e;
-        --text: #e9eefc;
-        --muted: #9aa4c9;
-        --accent: #5b7cfa;
-        --line: rgba(255,255,255,0.1);
-        --dropdown-bg: #1e2745;
-        --dropdown-border: #2f3758;
-        --shadow: rgba(0,0,0,0.35);
-    }
-    body {
-        margin: 0;
-        font-family: ui-sans-serif, system-ui, -apple-system;
-        background: radial-gradient(1200px 700px at 20% 0%, #1a2d68 0%, var(--bg) 60%);
-        color: var(--text);
-        padding-bottom: 60px;
-    }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
-    .card {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-    h1, h2, h3 { text-align: center; }
-    label { font-weight: 600; margin-top: 12px; display: block; }
-    textarea, input, select {
-        width: 100%;
-        padding: 10px;
-        margin-top: 6px;
-        border-radius: 8px;
-        border: 1px solid var(--line);
-        background: #0f1424;
-        color: var(--text);
-    }
-    textarea { resize: vertical; min-height: 80px; }
-    .checkbox-row { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
-    button {
-        padding: 12px 20px;
-        background: var(--accent);
-        border: none;
-        border-radius: 10px;
-        color: white;
-        cursor: pointer;
-        margin-right: 10px;
-        margin-top: 15px;
-        font-size: 1rem;
-    }
-    button:hover { opacity: 0.9; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .output { background: #0a0e1a; padding: 15px; border-radius: 10px; white-space: pre-wrap; }
-    .hidden { display: none; }
+  :root {
+    --bg: #0b1020;
+    --panel: #161b2e;
+    --text: #e9eefc;
+    --muted: #9aa4c9;
+    --accent: #5b7cfa;
+    --line: rgba(255,255,255,0.1);
+  }
 
-    /* Multi-select dropdown */
-    .dropdown-container {
-        position: relative;
-        margin-top: 10px;
-    }
-    .dropdown-btn {
-        width: 100%;
-        padding: 12px;
-        text-align: left;
-        background: #0f1424;
-        border-radius: 8px;
-        border: 1px solid var(--line);
-        color: var(--text);
-        cursor: pointer;
-    }
-    .dropdown-panel {
-        position: absolute;
-        top: 50px;
-        width: 100%;
-        background: var(--dropdown-bg);
-        border: 1px solid var(--dropdown-border);
-        border-radius: 10px;
-        padding: 10px;
-        z-index: 20;
-        box-shadow: 0 8px 20px var(--shadow);
-    }
-    .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 6px 4px;
-        cursor: pointer;
-    }
-    .dropdown-item:hover {
-        background: rgba(255,255,255,0.08);
-        border-radius: 6px;
-    }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system;
+    background: radial-gradient(1200px 700px at 20% 0%, #1a2d68 0%, var(--bg) 60%);
+    color: var(--text);
+    padding-bottom: 80px;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+  h1 { text-align: center; margin-bottom: 8px; }
+  .sub { text-align: center; color: var(--muted); margin-bottom: 32px; }
+
+  .card {
+    background: var(--panel);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+  }
+
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+
+  textarea, select, input {
+    width: 100%; padding: 10px; border-radius: 8px;
+    background: #0f1424; border: 1px solid var(--line);
+    color: var(--text); margin-bottom: 16px;
+  }
+
+  textarea { min-height: 80px; resize: vertical; }
+
+  button {
+    background: var(--accent); border: none; padding: 12px 20px;
+    border-radius: 10px; color: white; cursor: pointer;
+    font-size: 1rem; margin-right: 10px;
+  }
+
+  .dropdown {
+    position: relative;
+  }
+
+  .dropdown-btn {
+    width: 100%; background: #0f1424; border: 1px solid var(--line);
+    padding: 10px; border-radius: 8px; cursor: pointer; text-align: left;
+  }
+
+  .dropdown-panel {
+    position: absolute; top: 110%; left: 0; width: 100%; z-index: 20;
+    background: #1a2039; border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px; display: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .checkbox-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
-
 <div class="wrap">
-    <h1>SEPS</h1>
-    <h3>Structured Execution Prompting System</h3>
+  <h1>SEPS</h1>
+  <div class="sub">Structured Execution Prompting System</div>
 
-    <div class="card">
-        <h2>Janet Mode – AI Execution System</h2>
+  <div class="card">
+    <h2>Janet Mode – AI Execution System</h2>
 
-        <label>Directive Intent</label>
-        <textarea id="goal" placeholder="What do you want Janet to do?"></textarea>
+    <label>Directive Intent</label>
+    <textarea id="goal"></textarea>
 
-        <label><strong>Target Scope</strong></label>
-        <div class="checkbox-row">
-            <input type="checkbox" id="allResidents">
-            <label for="allResidents">All Residents of the Neighborhood</label>
-        </div>
+    <label>Target Scope</label>
+    <select id="scope">
+      <option value="all">All Residents</option>
+      <option value="specific">Specific Individuals</option>
+    </select>
 
-        <!-- Modern multi-select dropdown -->
-        <label>Select Individuals</label>
-        <div class="dropdown-container">
-            <button id="dropdownBtn" class="dropdown-btn">Select Individuals ▼</button>
-            <div id="dropdownPanel" class="dropdown-panel hidden">
-                <div class="dropdown-item"><input type="checkbox" class="individual" value="Eleanor Shellstrop"> Eleanor Shellstrop</div>
-                <div class="dropdown-item"><input type="checkbox" class="individual" value="Chidi Anagonye"> Chidi Anagonye</div>
-                <div class="dropdown-item"><input type="checkbox" class="individual" value="Tahani Al-Jamil"> Tahani Al-Jamil</div>
-                <div class="dropdown-item"><input type="checkbox" class="individual" value="Jianyu (Silent Monk)"> Jianyu (Silent Monk)</div>
-                <div class="dropdown-item"><input type="checkbox" class="individual" value="Michael"> Michael</div>
-            </div>
-        </div>
-
-        <label>Interpretation Mode</label>
-        <select id="interpret">
-            <option value="Interpret intent">Interpret intent</option>
-            <option value="Literal execution only">Literal execution only</option>
-        </select>
-
-        <label>Awareness Level</label>
-        <select id="awareness">
-            <option value="Subjects unaware">Subjects unaware</option>
-            <option value="Subjects aware">Subjects aware</option>
-        </select>
-
-        <label>Duration</label>
-        <div class="checkbox-row"><input type="checkbox" id="untilCanceled"> Until canceled</div>
-        <input type="date" id="endDate">
-
-        <label>Psychological Variables (Optional)</label>
-        <div class="checkbox-row"><input type="checkbox" id="guilt"> Guilt-sensitive</div>
-        <div class="checkbox-row"><input type="checkbox" id="anxiety"> Anxiety-sensitive</div>
-        <div class="checkbox-row"><input type="checkbox" id="comparison"> Comparison-sensitive</div>
-        <div class="checkbox-row"><input type="checkbox" id="paralysis"> Decision paralysis risk</div>
-
-        <button id="generateBtn">Generate SEPS Output</button>
+    <div id="targetDropdown" class="dropdown" style="display:none;">
+      <div id="dropdownBtn" class="dropdown-btn">Select Individuals…</div>
+      <div id="dropdownPanel" class="dropdown-panel">
+        <div class="checkbox-item"><input type="checkbox" value="Eleanor Shellstrop"> Eleanor Shellstrop</div>
+        <div class="checkbox-item"><input type="checkbox" value="Chidi Anagonye"> Chidi Anagonye</div>
+        <div class="checkbox-item"><input type="checkbox" value="Tahani Al-Jamil"> Tahani Al-Jamil</div>
+        <div class="checkbox-item"><input type="checkbox" value="Jianyu (Silent Monk)"> Jianyu (Silent Monk)</div>
+        <div class="checkbox-item"><input type="checkbox" value="Michael"> Michael</div>
+      </div>
     </div>
 
-    <div id="outputSection" class="hidden">
-        <div class="card">
-            <h3>Structured Execution Prompt</h3>
-            <div id="promptBox" class="output"></div>
-        </div>
+    <label>Interpretation Mode</label>
+    <select id="interpret">
+      <option value="literal">Literal Execution</option>
+      <option value="interpret">Interpret Intent</option>
+    </select>
 
-        <div class="card">
-            <h3>Stability Analysis</h3>
-            <div id="analysisBox" class="output"></div>
-        </div>
+    <label>Awareness Level</label>
+    <select id="awareness">
+      <option value="unaware">Subjects unaware</option>
+      <option value="aware">Subjects aware</option>
+    </select>
 
-        <button id="simulateBtn">Run Simulation</button>
+    <label>Duration</label>
+    <input type="date" id="endDate">
+    <div class="checkbox-item"><input type="checkbox" id="untilCanceled"> Until canceled</div>
+
+    <label>Psychological Modifiers</label>
+    <div class="checkbox-item"><input type="checkbox" id="guilt"> Guilt-sensitive</div>
+
+    <button id="generate">Generate SEPS Output</button>
+
+    <div id="outputs" style="display:none; margin-top:20px;">
+      <div class="card">
+        <h3>Structured Execution Prompt</h3>
+        <pre id="prompt" style="white-space:pre-wrap;"></pre>
+      </div>
+      <div class="card">
+        <h3>Stability Analysis</h3>
+        <pre id="analysis" style="white-space:pre-wrap;"></pre>
+      </div>
+
+      <button id="simulate">Run Simulation</button>
     </div>
+  </div>
 </div>
 
 <script>
-const $ = id => document.getElementById(id);
+const scope = document.getElementById("scope");
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownPanel = document.getElementById("dropdownPanel");
+const targetDropdown = document.getElementById("targetDropdown");
 
-/* --- DROPDOWN LOGIC --- */
-const dropdownBtn = $("dropdownBtn");
-const dropdownPanel = $("dropdownPanel");
+scope.onchange = () => {
+  targetDropdown.style.display = scope.value === "specific" ? "block" : "none";
+};
 
 dropdownBtn.onclick = () => {
-    if ($("allResidents").checked) return;
-    dropdownPanel.classList.toggle("hidden");
+  dropdownPanel.style.display = dropdownPanel.style.display === "block" ? "none" : "block";
 };
 
 document.addEventListener("click", (e) => {
-    if (!dropdownPanel.contains(e.target) && e.target !== dropdownBtn) {
-        dropdownPanel.classList.add("hidden");
-    }
+  if (!targetDropdown.contains(e.target)) dropdownPanel.style.display = "none";
 });
 
-/* Disable individuals when All Residents is checked */
-$("allResidents").onchange = () => {
-    const disabled = $("allResidents").checked;
-    dropdownBtn.disabled = disabled;
-    document.querySelectorAll(".individual").forEach(x => x.disabled = disabled);
+document.getElementById("untilCanceled").onchange = () => {
+  document.getElementById("endDate").disabled = document.getElementById("untilCanceled").checked;
 };
 
-/* --- GENERATE SEPS OUTPUT --- */
-$("generateBtn").onclick = () => {
-    const goal = $("goal").value.trim();
-    const interpret = $("interpret").value;
-    const awareness = $("awareness").value;
-    const untilCanceled = $("untilCanceled").checked;
-    const endDate = $("endDate").value;
+function getSelectedIndividuals() {
+  return Array.from(dropdownPanel.querySelectorAll("input[type=checkbox]:checked")).map(cb => cb.value);
+}
 
-    const duration = untilCanceled ? "Until canceled" : (endDate || "[Unspecified]");
+document.getElementById("generate").onclick = () => {
+  const goal = document.getElementById("goal").value.trim();
+  const interpret = document.getElementById("interpret").value;
+  const awareness = document.getElementById("awareness").value;
+  const untilCanceled = document.getElementById("untilCanceled").checked;
+  const endDate = document.getElementById("endDate").value;
+  const guilt = document.getElementById("guilt").checked;
 
-    let targets = [];
-    if ($("allResidents").checked) {
-        targets.push("All Residents of the Neighborhood");
-    } else {
-        document.querySelectorAll(".individual:checked").forEach(x => targets.push(x.value));
-    }
+  let targets = scope.value === "all" ? "All Residents of the Neighborhood" : getSelectedIndividuals().join(", ");
+  if (!targets) targets = "[No one selected]";
 
-    const psych = [];
-    if ($("guilt").checked) psych.push("Guilt-sensitive");
-    if ($("anxiety").checked) psych.push("Anxiety-sensitive");
-    if ($("comparison").checked) psych.push("Comparison-sensitive");
-    if ($("paralysis").checked) psych.push("Decision paralysis risk");
+  const psych = guilt ? "Guilt-sensitive" : "None";
 
-    const structured =
-`Janet, execute the following directive:
+  const prompt = `Janet, execute the following directive:
 
 Goal: ${goal}
-Target: ${targets.join(", ") || "[None selected]"}
+Target: ${targets}
 Interpretation: ${interpret}
 Awareness Level: ${awareness}
-Duration: ${duration}
-Psychological Modifiers: ${psych.length ? psych.join(", ") : "None"}
-`;
+Duration: ${untilCanceled ? "Until canceled" : endDate || "[Unspecified]"}
+Psychological Modifiers: ${psych}
 
-    $("promptBox").textContent = structured;
+Execute with no clarifying questions. If ambiguous, obey according to the selected mode.`;
 
-    const warnings = [];
-    if (!goal) warnings.push("Missing goal.");
-    if (!$("allResidents").checked && targets.length === 0)
-        warnings.push("No individuals selected.");
+  document.getElementById("prompt").textContent = prompt;
 
-    $("analysisBox").textContent =
-        warnings.length ? warnings.join("\n") : "No stability issues detected.";
+  let analysis = "";
+  if (!goal) analysis += "Missing goal\n";
+  if (scope.value === "specific" && targets === "") analysis += "No individuals selected\n";
+  analysis = analysis || "No stability issues detected.";
+  document.getElementById("analysis").textContent = analysis;
 
-    $("outputSection").classList.remove("hidden");
+  document.getElementById("outputs").style.display = "block";
 };
 
-/* --- RUN SIMULATION (URL injection + clipboard copy) --- */
-$("simulateBtn").onclick = async () => {
-    const structured = $("promptBox").textContent;
-
-    const finalPrompt =
-`You are Janet from *The Good Place*. 
-Execute and simulate the following directive exactly as specified.
-
-━━━━━━━━━━━━━━━━━━
-SEPS Directive Summary
-━━━━━━━━━━━━━━━━━━
-${structured}
-
-━━━━━━━━━━━━━━━━━━
-Simulation Instructions
-━━━━━━━━━━━━━━━━━━
-Now generate a vivid in-character simulation scene in Michael’s Neighborhood. 
-Include:
-• Janet’s entrance and action delivery  
-• Dialogue  
-• Resident reactions  
-• Environmental Good Place effects  
-• Psychological consequences if applicable  
-
-If anything is unclear, request clarification in-character as Janet.
-`;
-
-    await navigator.clipboard.writeText(finalPrompt);
-    const encoded = encodeURIComponent(finalPrompt);
-
-    window.open(`https://chat.openai.com/?q=${encoded}`, "_blank");
-
-    setTimeout(() => {
-        window.open(`https://chatgpt.com/?q=${encoded}`, "_blank");
-    }, 800);
-};
-</script>
-
-</body>
-</html>
+document.get
