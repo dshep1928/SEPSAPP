@@ -13,6 +13,9 @@
         --muted: #9aa4c9;
         --accent: #5b7cfa;
         --line: rgba(255,255,255,0.1);
+        --dropdown-bg: #1e2745;
+        --dropdown-border: #2f3758;
+        --shadow: rgba(0,0,0,0.35);
     }
     body {
         margin: 0;
@@ -57,17 +60,48 @@
     button:disabled { opacity: 0.4; cursor: not-allowed; }
     .output { background: #0a0e1a; padding: 15px; border-radius: 10px; white-space: pre-wrap; }
     .hidden { display: none; }
-    .names-container input { width: 80%; display: inline-block; }
-    .remove-btn {
-        background: #b33333;
-        padding: 5px 10px;
+
+    /* Multi-select dropdown */
+    .dropdown-container {
+        position: relative;
+        margin-top: 10px;
+    }
+    .dropdown-btn {
+        width: 100%;
+        padding: 12px;
+        text-align: left;
+        background: #0f1424;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        color: var(--text);
+        cursor: pointer;
+    }
+    .dropdown-panel {
+        position: absolute;
+        top: 50px;
+        width: 100%;
+        background: var(--dropdown-bg);
+        border: 1px solid var(--dropdown-border);
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 20;
+        box-shadow: 0 8px 20px var(--shadow);
+    }
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 4px;
+        cursor: pointer;
+    }
+    .dropdown-item:hover {
+        background: rgba(255,255,255,0.08);
         border-radius: 6px;
-        font-size: 0.8rem;
-        margin-left: 10px;
     }
 </style>
 </head>
 <body>
+
 <div class="wrap">
     <h1>SEPS</h1>
     <h3>Structured Execution Prompting System</h3>
@@ -84,19 +118,17 @@
             <label for="allResidents">All Residents of the Neighborhood</label>
         </div>
 
-        <div id="individualTargets">
-            <label>Select specific individuals:</label>
-
-            <div class="checkbox-row"><input type="checkbox" class="human" value="Eleanor Shellstrop"> Eleanor Shellstrop</div>
-            <div class="checkbox-row"><input type="checkbox" class="human" value="Chidi Anagonye"> Chidi Anagonye</div>
-            <div class="checkbox-row"><input type="checkbox" class="human" value="Tahani Al-Jamil"> Tahani Al-Jamil</div>
-            <div class="checkbox-row"><input type="checkbox" class="human" value="Jason Mendoza"> Jason Mendoza</div>
-            <div class="checkbox-row"><input type="checkbox" class="human" value="Jianyu (Silent Monk)"> Jianyu (Silent Monk)</div>
-            <div class="checkbox-row"><input type="checkbox" class="human" value="Michael"> Michael</div>
-
-            <label>Add custom name(s):</label>
-            <div id="customNames"></div>
-            <button id="addNameBtn" type="button">+ Add Another</button>
+        <!-- Modern multi-select dropdown -->
+        <label>Select Individuals</label>
+        <div class="dropdown-container">
+            <button id="dropdownBtn" class="dropdown-btn">Select Individuals ▼</button>
+            <div id="dropdownPanel" class="dropdown-panel hidden">
+                <div class="dropdown-item"><input type="checkbox" class="individual" value="Eleanor Shellstrop"> Eleanor Shellstrop</div>
+                <div class="dropdown-item"><input type="checkbox" class="individual" value="Chidi Anagonye"> Chidi Anagonye</div>
+                <div class="dropdown-item"><input type="checkbox" class="individual" value="Tahani Al-Jamil"> Tahani Al-Jamil</div>
+                <div class="dropdown-item"><input type="checkbox" class="individual" value="Jianyu (Silent Monk)"> Jianyu (Silent Monk)</div>
+                <div class="dropdown-item"><input type="checkbox" class="individual" value="Michael"> Michael</div>
+            </div>
         </div>
 
         <label>Interpretation Mode</label>
@@ -142,46 +174,43 @@
 <script>
 const $ = id => document.getElementById(id);
 
-// Dynamic custom name fields
-document.getElementById("addNameBtn").onclick = () => {
-    const div = document.createElement("div");
-    div.className = "names-container checkbox-row";
-    div.innerHTML = `
-        <input type="text" class="customName" placeholder="Enter name">
-        <button type="button" class="remove-btn">– Remove</button>
-    `;
-    document.getElementById("customNames").appendChild(div);
+/* --- DROPDOWN LOGIC --- */
+const dropdownBtn = $("dropdownBtn");
+const dropdownPanel = $("dropdownPanel");
 
-    div.querySelector(".remove-btn").onclick = () => div.remove();
+dropdownBtn.onclick = () => {
+    if ($("allResidents").checked) return;
+    dropdownPanel.classList.toggle("hidden");
 };
 
-// Handle All Residents toggle
-document.getElementById("allResidents").onchange = () => {
-    const disabled = document.getElementById("allResidents").checked;
-    document.querySelectorAll(".human, .customName, #addNameBtn").forEach(el => {
-        el.disabled = disabled;
-    });
-    document.getElementById("customNames").style.opacity = disabled ? 0.5 : 1;
+document.addEventListener("click", (e) => {
+    if (!dropdownPanel.contains(e.target) && e.target !== dropdownBtn) {
+        dropdownPanel.classList.add("hidden");
+    }
+});
+
+/* Disable individuals when All Residents is checked */
+$("allResidents").onchange = () => {
+    const disabled = $("allResidents").checked;
+    dropdownBtn.disabled = disabled;
+    document.querySelectorAll(".individual").forEach(x => x.disabled = disabled);
 };
 
-// Generate SEPS Output
-document.getElementById("generateBtn").onclick = () => {
+/* --- GENERATE SEPS OUTPUT --- */
+$("generateBtn").onclick = () => {
     const goal = $("goal").value.trim();
     const interpret = $("interpret").value;
     const awareness = $("awareness").value;
     const untilCanceled = $("untilCanceled").checked;
     const endDate = $("endDate").value;
 
-    let duration = untilCanceled ? "Until canceled" : (endDate || "[Unspecified]");
+    const duration = untilCanceled ? "Until canceled" : (endDate || "[Unspecified]");
 
     let targets = [];
     if ($("allResidents").checked) {
         targets.push("All Residents of the Neighborhood");
     } else {
-        document.querySelectorAll(".human:checked").forEach(x => targets.push(x.value));
-        document.querySelectorAll(".customName").forEach(x => {
-            if (x.value.trim()) targets.push(x.value.trim());
-        });
+        document.querySelectorAll(".individual:checked").forEach(x => targets.push(x.value));
     }
 
     const psych = [];
@@ -190,7 +219,6 @@ document.getElementById("generateBtn").onclick = () => {
     if ($("comparison").checked) psych.push("Comparison-sensitive");
     if ($("paralysis").checked) psych.push("Decision paralysis risk");
 
-    // Build Structured SEPS Output
     const structured =
 `Janet, execute the following directive:
 
@@ -204,17 +232,19 @@ Psychological Modifiers: ${psych.length ? psych.join(", ") : "None"}
 
     $("promptBox").textContent = structured;
 
-    // Stability Analysis
     const warnings = [];
     if (!goal) warnings.push("Missing goal.");
     if (!$("allResidents").checked && targets.length === 0)
         warnings.push("No individuals selected.");
-    $("analysisBox").textContent = warnings.length ? warnings.join("\n") : "No stability issues detected.";
+
+    $("analysisBox").textContent =
+        warnings.length ? warnings.join("\n") : "No stability issues detected.";
 
     $("outputSection").classList.remove("hidden");
 };
 
-document.getElementById("simulateBtn").onclick = async () => {
+/* --- RUN SIMULATION (URL injection + clipboard copy) --- */
+$("simulateBtn").onclick = async () => {
     const structured = $("promptBox").textContent;
 
     const finalPrompt =
@@ -240,21 +270,15 @@ Include:
 If anything is unclear, request clarification in-character as Janet.
 `;
 
-    // Copy to clipboard
     await navigator.clipboard.writeText(finalPrompt);
-
-    // Encode for URL
     const encoded = encodeURIComponent(finalPrompt);
 
-    // Try chat.openai.com first
     window.open(`https://chat.openai.com/?q=${encoded}`, "_blank");
 
-    // Optional fallback: open chatgpt.com after small delay
     setTimeout(() => {
         window.open(`https://chatgpt.com/?q=${encoded}`, "_blank");
     }, 800);
 };
-
 </script>
 
 </body>
