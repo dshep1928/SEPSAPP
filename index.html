@@ -12,19 +12,17 @@
             --text: #e9eefc;
             --muted: #9aa4c9;
             --accent: #5b7cfa;
-            --line: rgba(255,255,255,0.1);
+            --line: rgba(255,255,255,0.15);
         }
 
         body {
             margin: 0;
-            background: radial-gradient(1200px 700px at 20% 0%, #1a2d68 0%, var(--bg) 60%);
+            background: radial-gradient(1200px 700px at 20% 0%, #192a60 0%, var(--bg) 70%);
             font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
             color: var(--text);
-            padding-bottom: 60px;
         }
 
         .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
-
         h1 { text-align: center; margin-bottom: 8px; }
         .sub { text-align: center; color: var(--muted); margin-bottom: 32px; }
 
@@ -33,7 +31,7 @@
             padding: 20px;
             border-radius: 12px;
             border: 1px solid var(--line);
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         label { font-weight: 600; display: block; margin-bottom: 6px; }
@@ -42,12 +40,11 @@
             width: 100%;
             padding: 10px;
             border-radius: 8px;
-            border: 1px solid var(--line);
             background: #0f1424;
+            border: 1px solid var(--line);
             color: var(--text);
             margin-bottom: 14px;
         }
-
         textarea { min-height: 80px; }
 
         button {
@@ -59,22 +56,20 @@
             cursor: pointer;
             font-size: 1rem;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 12px;
         }
-
-        .hidden { display: none; }
+        .hidden { display:none; }
 
         .output {
             white-space: pre-wrap;
-            line-height: 1.5;
-            background: #0a0e1a;
-            padding: 12px;
-            border-radius: 8px;
+            background:#0a0e1a;
+            padding:12px;
+            border-radius:8px;
+            line-height:1.6;
         }
 
-        .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
-        .checkbox-item { display: flex; gap: 8px; align-items: center; }
-
+        .checkbox-group { display:flex; flex-direction:column; gap:8px; }
+        .checkbox-item { display:flex; gap:8px; align-items:center; }
     </style>
 </head>
 
@@ -82,189 +77,167 @@
     <div class="wrap">
 
         <h1>SEPS</h1>
-        <div class="sub">Structured Execution Prompting System<br>Grand Designer Patch for Michael</div>
+        <div class="sub">Structured Execution Prompting System</div>
 
-        <!-- TARGET SELECTION -->
+        <!-- SELECT SYSTEM -->
         <div class="card" id="targetScreen">
             <label><strong>Which system are you issuing instructions to?</strong></label>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
                 <button id="chooseJanet">Janet<br><small>AI Execution System</small></button>
-                <button id="chooseNeighborhood">Neighborhood<br><small>Human Psychological System</small></button>
+                <button id="chooseNeighborhood">Neighborhood<br><small>Human Psych System</small></button>
             </div>
         </div>
 
         <!-- JANET MODE -->
         <div id="janetScreen" class="hidden">
             <div class="card">
-                <h3>Janet Mode – AI Execution System</h3>
+                <h2>Janet Mode – AI Execution System</h2>
 
                 <label>Directive Intent</label>
-                <textarea id="j_goal" placeholder="Enter the goal exactly as intended..."></textarea>
+                <textarea id="goal" placeholder="Enter the goal exactly as intended..."></textarea>
 
                 <label>Target Scope</label>
-                <select id="j_scope">
+                <select id="scope">
                     <option value="single">Single specified individual</option>
                     <option value="multiple">Multiple specified individuals</option>
                     <option value="all">All residents</option>
                     <option value="ambient">Ambient / unspecified</option>
                 </select>
 
-                <div id="j_namesGroup">
+                <div id="namesGroup">
                     <label>Target Name(s)</label>
-                    <input id="j_names" placeholder="Eleanor; Chidi; Tahani; Jason" />
+                    <input id="names" placeholder="Eleanor; Chidi; Tahani; Jason" />
                 </div>
 
                 <label>Interpretation Mode</label>
-                <select id="j_interpret">
-                    <option value="interpret">Interpret generative intent</option>
+                <select id="interpretation">
+                    <option value="interpret">Interpret intent</option>
                     <option value="literal">Literal execution only</option>
                 </select>
 
-                <label>Execution Parameters</label>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                    <div>
-                        <label>Escalation</label>
-                        <select id="j_escalation">
-                            <option value="single">Single</option>
-                            <option value="escalating">Escalating</option>
-                        </select>
-                    </div>
+                <label>Awareness Level</label>
+                <select id="awareness">
+                    <option value="unaware">Subjects unaware</option>
+                    <option value="aware">Subjects aware</option>
+                </select>
 
-                    <div>
-                        <label>Awareness</label>
-                        <select id="j_awareness">
-                            <option value="unaware">Subjects unaware</option>
-                            <option value="aware">Subjects aware</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label>Emotional Design</label>
-                        <select id="j_emotional">
-                            <option value="clarity">Clarity preferred</option>
-                            <option value="confusion">Confusion intentional</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label>Duration</label>
-                        <input type="date" id="j_endDate" />
-                        <div class="checkbox-item"><input type="checkbox" id="j_untilCanceled"> Until canceled</div>
-                    </div>
-                </div>
+                <label>Duration</label>
+                <input type="date" id="endDate">
+                <div class="checkbox-item"><input type="checkbox" id="untilCanceled"> Until canceled</div>
 
                 <label>Psychological Variables (Optional)</label>
                 <div class="checkbox-group">
-                    <div class="checkbox-item"><input type="checkbox" id="j_guilt"> Guilt-sensitive</div>
-                    <div class="checkbox-item"><input type="checkbox" id="j_anxiety"> Anxiety-sensitive</div>
-                    <div class="checkbox-item"><input type="checkbox" id="j_compare"> Comparison-sensitive</div>
-                    <div class="checkbox-item"><input type="checkbox" id="j_paralysis"> Decision paralysis</div>
+                    <div class="checkbox-item"><input type="checkbox" id="guilt"> Guilt-sensitive</div>
+                    <div class="checkbox-item"><input type="checkbox" id="anxiety"> Anxiety-sensitive</div>
+                    <div class="checkbox-item"><input type="checkbox" id="comparison"> Comparison-sensitive</div>
+                    <div class="checkbox-item"><input type="checkbox" id="paralysis"> Decision paralysis risk</div>
                 </div>
 
-                <button id="j_generate">Generate SEPS Output</button>
+                <button id="generateBtn">Generate SEPS Output</button>
                 <button onclick="showScreen('targetScreen')">Back</button>
             </div>
 
-            <!-- OUTPUTS -->
-            <div id="j_outputs" class="hidden">
-
+            <div id="outputs" class="hidden">
                 <div class="card">
                     <h3>Structured Execution Prompt</h3>
-                    <div id="j_prompt" class="output"></div>
+                    <div id="prompt" class="output"></div>
                 </div>
 
                 <div class="card">
-                    <h3>Prompt Stability Analysis</h3>
-                    <div id="j_analysis" class="output"></div>
+                    <h3>Stability Analysis</h3>
+                    <div id="analysis" class="output"></div>
                 </div>
 
-                <button id="j_runSim">Run Simulation</button>
+                <button id="simulateBtn">Run Simulation</button>
             </div>
         </div>
+
     </div>
 
 <script>
 const $ = id => document.getElementById(id);
 
 function showScreen(id) {
-    ["targetScreen", "janetScreen"].forEach(s => $(s).classList.add("hidden"));
+    ["targetScreen","janetScreen"].forEach(s=>$(s).classList.add("hidden"));
     $(id).classList.remove("hidden");
 }
 
 $("chooseJanet").onclick = () => showScreen("janetScreen");
 
-$("j_generate").onclick = () => {
+$("scope").onchange = () => {
+    const show = ["single","multiple"].includes($("scope").value);
+    $("namesGroup").style.display = show ? "block" : "none";
+};
+
+$("untilCanceled").onchange = () => {
+    $("endDate").disabled = $("untilCanceled").checked;
+};
+
+$("generateBtn").onclick = () => {
     const data = {
-        goal: $("j_goal").value.trim(),
-        scope: $("j_scope").value,
-        names: $("j_names").value.split(";").map(x=>x.trim()).filter(Boolean),
-        interpret: $("j_interpret").value,
-        escalation: $("j_escalation").value,
-        awareness: $("j_awareness").value,
-        emotional: $("j_emotional").value,
-        untilCanceled: $("j_untilCanceled").checked,
-        endDate: $("j_endDate").value,
+        goal: $("goal").value.trim(),
+        scope: $("scope").value,
+        names: $("names").value.split(";").map(n=>n.trim()).filter(Boolean),
+        interpretation: $("interpretation").value,
+        awareness: $("awareness").value,
+        untilCanceled: $("untilCanceled").checked,
+        endDate: $("endDate").value,
         psych: {
-            guilt: $("j_guilt").checked,
-            anxiety: $("j_anxiety").checked,
-            compare: $("j_compare").checked,
-            paralysis: $("j_paralysis").checked
+            guilt: $("guilt").checked,
+            anxiety: $("anxiety").checked,
+            comparison: $("comparison").checked,
+            paralysis: $("paralysis").checked
         }
     };
 
-    // PROMPT CONSTRUCTION
     let prompt =
-`Janet, execute the following directive with maximum precision:
+`Janet, execute the following directive:
 
 Goal: ${data.goal}
-Target: ${data.scope}${data.names.length ? " (" + data.names.join(", ") + ")" : ""}
-Interpretation: ${data.interpret}
-Escalation: ${data.escalation}
-Awareness: ${data.awareness}
-Emotional Design: ${data.emotional}
-Duration: ${data.untilCanceled ? "Until canceled" : data.endDate || "[Unspecified]"}
-`;
+Target Scope: ${data.scope}${data.names.length ? " ("+data.names.join(", ")+")" : ""}
+Interpretation: ${data.interpretation}
+Awareness Level: ${data.awareness}
+Duration: ${data.untilCanceled ? "Until canceled" : (data.endDate || "[Unspecified]")}`;
 
-    const psychFlags = Object.entries(data.psych)
-        .filter(([k,v]) => v)
-        .map(([k,v]) => k.replace(/^\w/, c=>c.toUpperCase()))
+    const psych = Object.entries(data.psych)
+        .filter(([k,v])=>v)
+        .map(([k,v])=>k)
         .join(", ");
 
-    if (psychFlags) prompt += `Psychological Targeting: ${psychFlags}\n`;
+    if (psych.length) prompt += `\nPsychological Modifiers: ${psych}`;
 
-    prompt += `\nExecute deterministically. If any parameter is undefined, request clarification.`;
+    $("prompt").textContent = prompt;
 
-    $("j_prompt").textContent = prompt;
-
-    // ANALYSIS
     let warnings = [];
     if (!data.goal) warnings.push("Missing goal");
-    if (["single","multiple"].includes(data.scope) && data.names.length === 0)
+    if (["single","multiple"].includes(data.scope) && data.names.length===0)
         warnings.push("Missing target names");
-    if (data.untilCanceled && data.endDate) warnings.push("Conflicting duration");
+    if (data.untilCanceled && data.endDate)
+        warnings.push("Conflicting duration settings");
 
-    $("j_analysis").textContent =
-        warnings.length ? "Stability Issues:\n" + warnings.join("\n") : "No stability issues detected.";
+    $("analysis").textContent =
+        warnings.length ? warnings.join("\n") : "No stability issues detected.";
 
-    $("j_outputs").classList.remove("hidden");
+    $("outputs").classList.remove("hidden");
 };
 
-// RUN SIMULATION (CHATGPT)
-$("j_runSim").onclick = async () => {
-    const structured = $("j_prompt").textContent;
+// OPEN CHATGPT WITH COPIED PROMPT
+$("simulateBtn").onclick = async () => {
+    const prompt = $("prompt").textContent;
 
-    const finalPrompt =
+    const sim =
 `You are Janet from The Good Place.
 
-Simulate a vivid, cinematic, in-character scene in Michael’s neighborhood based on this SEPS directive:
+Simulate a vivid scene in the Neighborhood based on this directive:
 
-${structured}
+${prompt}
 
-Include resident reactions, environment changes, comedic timing, and full Janet-style dialogue.
-Begin now.`;
+Include dialogue, reactions, emotional tone, and environmental changes.
 
-    await navigator.clipboard.writeText(finalPrompt);
+Begin simulation now.`;
+
+    await navigator.clipboard.writeText(sim);
 
     alert("Simulation prompt copied! Opening ChatGPT…");
 
@@ -274,4 +247,3 @@ Begin now.`;
 
 </body>
 </html>
-
