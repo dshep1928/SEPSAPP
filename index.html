@@ -1,160 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEPS - Structured Execution Prompting System</title>
-
-    <style>
-        :root {
-            --bg: #0b1020;
-            --panel: #161b2e;
-            --text: #e9eefc;
-            --muted: #9aa4c9;
-            --accent: #5b7cfa;
-            --line: rgba(255,255,255,0.15);
-        }
-
-        body {
-            margin: 0;
-            background: radial-gradient(1200px 700px at 20% 0%, #192a60 0%, var(--bg) 70%);
-            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
-            color: var(--text);
-        }
-
-        .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
-        h1 { text-align: center; margin-bottom: 8px; }
-        .sub { text-align: center; color: var(--muted); margin-bottom: 32px; }
-
-        .card {
-            background: var(--panel);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--line);
-            margin-bottom: 20px;
-        }
-
-        label { font-weight: 600; display: block; margin-bottom: 6px; }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            background: #0f1424;
-            border: 1px solid var(--line);
-            color: var(--text);
-            margin-bottom: 14px;
-        }
-        textarea { min-height: 80px; }
-
-        button {
-            background: var(--accent);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            font-size: 1rem;
-            width: 100%;
-            margin-top: 12px;
-        }
-        .hidden { display:none; }
-
-        .output {
-            white-space: pre-wrap;
-            background:#0a0e1a;
-            padding:12px;
-            border-radius:8px;
-            line-height:1.6;
-        }
-
-        .checkbox-group { display:flex; flex-direction:column; gap:8px; }
-        .checkbox-item { display:flex; gap:8px; align-items:center; }
-    </style>
-</head>
-
-<body>
-    <div class="wrap">
-
-        <h1>SEPS</h1>
-        <div class="sub">Structured Execution Prompting System</div>
-
-        <!-- SELECT SYSTEM -->
-        <div class="card" id="targetScreen">
-            <label><strong>Which system are you issuing instructions to?</strong></label>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
-                <button id="chooseJanet">Janet<br><small>AI Execution System</small></button>
-                <button id="chooseNeighborhood">Neighborhood<br><small>Human Psych System</small></button>
-            </div>
-        </div>
-
-        <!-- JANET MODE -->
-        <div id="janetScreen" class="hidden">
-            <div class="card">
-                <h2>Janet Mode – AI Execution System</h2>
-
-                <label>Directive Intent</label>
-                <textarea id="goal" placeholder="Enter the goal exactly as intended..."></textarea>
-
-                <label>Target Scope</label>
-                <select id="scope">
-                    <option value="single">Single specified individual</option>
-                    <option value="multiple">Multiple specified individuals</option>
-                    <option value="all">All residents</option>
-                    <option value="ambient">Ambient / unspecified</option>
-                </select>
-
-                <div id="namesGroup">
-                    <label>Target Name(s)</label>
-                    <input id="names" placeholder="Eleanor; Chidi; Tahani; Jason" />
-                </div>
-
-                <label>Interpretation Mode</label>
-                <select id="interpretation">
-                    <option value="interpret">Interpret intent</option>
-                    <option value="literal">Literal execution only</option>
-                </select>
-
-                <label>Awareness Level</label>
-                <select id="awareness">
-                    <option value="unaware">Subjects unaware</option>
-                    <option value="aware">Subjects aware</option>
-                </select>
-
-                <label>Duration</label>
-                <input type="date" id="endDate">
-                <div class="checkbox-item"><input type="checkbox" id="untilCanceled"> Until canceled</div>
-
-                <label>Psychological Variables (Optional)</label>
-                <div class="checkbox-group">
-                    <div class="checkbox-item"><input type="checkbox" id="guilt"> Guilt-sensitive</div>
-                    <div class="checkbox-item"><input type="checkbox" id="anxiety"> Anxiety-sensitive</div>
-                    <div class="checkbox-item"><input type="checkbox" id="comparison"> Comparison-sensitive</div>
-                    <div class="checkbox-item"><input type="checkbox" id="paralysis"> Decision paralysis risk</div>
-                </div>
-
-                <button id="generateBtn">Generate SEPS Output</button>
-                <button onclick="showScreen('targetScreen')">Back</button>
-            </div>
-
-            <div id="outputs" class="hidden">
-                <div class="card">
-                    <h3>Structured Execution Prompt</h3>
-                    <div id="prompt" class="output"></div>
-                </div>
-
-                <div class="card">
-                    <h3>Stability Analysis</h3>
-                    <div id="analysis" class="output"></div>
-                </div>
-
-                <button id="simulateBtn">Run Simulation</button>
-            </div>
-        </div>
-
-    </div>
-
 <script>
 const $ = id => document.getElementById(id);
 
@@ -191,59 +34,78 @@ $("generateBtn").onclick = () => {
         }
     };
 
+    // ---------- CREATE PROMPT ----------
     let prompt =
-`Janet, execute the following directive:
+`Janet, execute the following directive precisely:
 
-Goal: ${data.goal}
-Target Scope: ${data.scope}${data.names.length ? " ("+data.names.join(", ")+")" : ""}
-Interpretation: ${data.interpretation}
-Awareness Level: ${data.awareness}
-Duration: ${data.untilCanceled ? "Until canceled" : (data.endDate || "[Unspecified]")}`;
+Goal:
+${data.goal || "[Missing]"}
 
-    const psych = Object.entries(data.psych)
-        .filter(([k,v])=>v)
-        .map(([k,v])=>k)
+Target Scope:
+${data.scope}${data.names.length ? " (" + data.names.join(", ") + ")" : ""}
+
+Interpretation Mode:
+${data.interpretation}
+
+Awareness Level:
+${data.awareness}
+
+Duration:
+${data.untilCanceled ? "Until canceled" : (data.endDate || "[Unspecified]")}`;
+
+    const psychMods = Object.entries(data.psych)
+        .filter(([k,v]) => v)
+        .map(([k]) => k.replace(/^\w/, c => c.toUpperCase()))
         .join(", ");
 
-    if (psych.length) prompt += `\nPsychological Modifiers: ${psych}`;
+    if (psychMods) {
+        prompt += `\n\nPsychological Sensitivities:\n${psychMods}`;
+    }
 
+    prompt += `
+
+Execution Rule:
+Ask for clarification if ANY variable is undefined before acting.`;
+
+    // SHOW PROMPT ON SCREEN
     $("prompt").textContent = prompt;
 
-    let warnings = [];
-    if (!data.goal) warnings.push("Missing goal");
-    if (["single","multiple"].includes(data.scope) && data.names.length===0)
-        warnings.push("Missing target names");
+    // ---------- ANALYSIS ----------
+    let issues = [];
+    if (!data.goal) issues.push("Missing goal.");
+    if (["single","multiple"].includes(data.scope) && data.names.length === 0)
+        issues.push("Scope requires names but none provided.");
     if (data.untilCanceled && data.endDate)
-        warnings.push("Conflicting duration settings");
+        issues.push("Duration conflict: end date + until canceled.");
 
     $("analysis").textContent =
-        warnings.length ? warnings.join("\n") : "No stability issues detected.";
+        issues.length ? issues.join("\n") : "No stability issues detected.";
 
+    // MAKE OUTPUT VISIBLE
     $("outputs").classList.remove("hidden");
 };
 
-// OPEN CHATGPT WITH COPIED PROMPT
 $("simulateBtn").onclick = async () => {
-    const prompt = $("prompt").textContent;
+    const builtPrompt = $("prompt").textContent;
 
-    const sim =
+    const finalSim =
 `You are Janet from The Good Place.
+Simulate a scene in the Neighborhood based on this directive:
 
-Simulate a vivid scene in the Neighborhood based on this directive:
+${builtPrompt}
 
-${prompt}
-
-Include dialogue, reactions, emotional tone, and environmental changes.
+Respond with:
+- Dialogue
+- Reactions
+- Environmental effects
+- Emotional tone
 
 Begin simulation now.`;
 
-    await navigator.clipboard.writeText(sim);
+    await navigator.clipboard.writeText(finalSim);
 
-    alert("Simulation prompt copied! Opening ChatGPT…");
+    alert("Simulation prompt copied! Now opening ChatGPT...");
 
     window.open("https://chat.openai.com/", "_blank");
 };
 </script>
-
-</body>
-</html>
